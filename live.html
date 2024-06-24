@@ -1,0 +1,139 @@
+<div style="width: 100%; display: flex; justify-content: center;">
+    <canvas id="life" width="500" height="500"> </canvas>
+</div>
+
+<div class="Slidemenu" style="width: 100%; ">
+    <div class="slidecontainer" style="width: 100%; background-color:black;">
+        <div id="Yellow_Collumn" style="width: calc(20% - 10px); height: 5px;background-color:palegoldenrod;"></div>
+        <div id="Red_Collumn" style="width: calc(20% - 10px); height: 5px;background-color:lightcoral;"></div>
+        <div id="Blue_Collumn" style="width: calc(20% - 10px); height: 5px;background-color:powderblue;"></div>
+        <div id="Green_Collumn" style="width: calc(20% - 10px); height: 5px;background-color:lightgreen;"></div>
+    </div>
+    <div class="slidecontainer" style="width: 100%; background-color:palegoldenrod;">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="Y_Y" style="width: calc(25% - 10px);">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="Y_R" style="width: calc(25% - 10px);">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="Y_B" style="width: calc(25% - 10px);">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="Y_G" style="width: calc(25% - 10px);">
+    </div>
+    <div class="slidecontainer" style="background-color:lightcoral;">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="R_Y" style="width: calc(25% - 10px);">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="R_R" style="width: calc(25% - 10px);">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="R_B" style="width: calc(25% - 10px);">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="R_G" style="width: calc(25% - 10px);">
+    </div>
+    <div class="slidecontainer" style="background-color:powderblue;">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="B_Y" style="width: calc(25% - 10px);">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="B_R" style="width: calc(25% - 10px);">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="B_B" style="width: calc(25% - 10px);">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="B_G" style="width: calc(25% - 10px);">
+    </div>
+    <div class="slidecontainer" style="background-color:lightgreen;">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="G_Y" style="width: calc(25% - 10px);">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="G_R" style="width: calc(25% - 10px);">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="G_B" style="width: calc(25% - 10px);">
+        <input type="range" min="-100" max="100" value="0" class="slider" id="G_G" style="width: calc(25% - 10px); background: #04AA6D;">
+    </div>
+    <div style="width: 100%; display: flex; justify-content: center;">
+        <button onclick=setAllSlidersTo0() >Reset ALL Laws.</button>
+    </div>
+</div>
+
+<script>
+    m=document.getElementById("life").getContext("2d")
+    draw=(x,y,c,s)=>{
+        m.fillStyle=c
+        m.fillRect(x,y,s,s)
+    }
+    
+    particles=[]
+    particle=(x,y,c)=>{
+        return{"x":x, "y":y,"vx":0, "vy":0, "color":c}
+    }
+
+    random=()=>{
+        return Math.random()*400+50
+    }
+
+    create=(number, color) =>{
+        group=[]
+        for(let i =0; i < number; i++){
+            group.push(particle(random(),random(),color))
+            particles.push(group[i])
+        }
+        return group
+    }
+
+    rule=(particles1,particles2, g) => {
+        for (let i=0; i< particles1.length;i++){
+            fx = 0
+            fy = 0
+            for(let j=0;j<particles2.length;j++){
+                a = particles1[i]
+                b = particles2[j]
+                dx = a.x - b.x
+                dy = a.y - b.y
+                d = Math.sqrt(dx*dx + dy*dy)
+                if (d > 0 && d < 75){
+                    F = g * 1/d
+                    fx += (F * dx)
+                    fy += (F * dy)
+                }
+            }
+            a.vx = (a.vx + fx)*0.5
+            a.vy = (a.vy + fy)*0.5
+            a.x += a.vx
+            a.y += a.vy
+            if(a.x <= 0 || a.x >= 500){ a.vx *= -1}
+            if(a.y <= 0 || a.y >= 500){ a.vy *= -1}
+        }
+        
+    }
+
+    let lawsList = ["Y_Y", "Y_R", "Y_B", "Y_G","R_Y","R_R","R_G","R_B","B_Y","B_R","B_G","B_B","G_Y","G_R","G_G","G_B"];
+
+    setAllSlidersTo0 = () => {
+        for (let i = 0; i < lawsList.length; i++){
+            var slider = document.getElementById(lawsList[i]);
+            slider.value=0;
+        }
+    }
+
+    yellow = create(300,"yellow")
+    red = create(300,"red")
+    blue = create(300,"blue")
+    green = create(300,"green")
+
+    update=()=>{
+
+        rule(yellow,yellow,Y_Y.value/100)
+        rule(yellow,red,Y_R.value/100)
+        rule(yellow,blue,Y_G.value/100)
+        rule(yellow,green,Y_B.value/100)
+
+        rule(red,yellow,R_Y.value/100)
+        rule(red,red,R_R.value/100)
+        rule(red,blue,R_B.value/100)
+        rule(red,green,R_G.value/100)
+
+        rule(blue,yellow,B_Y.value/100)
+        rule(blue,red,B_R.value/100)
+        rule(blue,blue,B_G.value/100)
+        rule(blue,green,B_B.value/100)
+
+        rule(green,yellow,G_Y.value/100)
+        rule(green,red,G_R.value/100)
+        rule(green,blue,G_G.value/100)
+        rule(green,green,G_B.value/100)
+
+        m.clearRect(0,0,500,500)
+
+        draw(0,0, "black", 500)
+        for(i=0;i<particles.length;i++){
+            draw(particles[i].x, particles[i].y, particles[i].color, 5)
+        }
+        requestAnimationFrame(update)
+    }
+
+    update();
+</script>
+
